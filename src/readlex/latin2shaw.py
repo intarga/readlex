@@ -325,6 +325,7 @@ def latin2shaw(text, is_xml=False):
             # Convert contractions
             elif (
                 token.lower_ in contraction_start
+                and token.i + 1 < len(doc)
                 and doc[token.i + 1].lower_ in contraction_end
             ):
                 text_split_shaw += contraction_start[token.lower_]
@@ -342,11 +343,15 @@ def latin2shaw(text, is_xml=False):
 
             # Convert possessive 's
             elif token.lower_ == "'s":
-                if text_split_shaw[-1] in s_follows:
-                    text_split_shaw += "𐑕" + token.whitespace_
-                elif text_split_shaw[-1] in uhz_follows:
-                    text_split_shaw += "𐑩𐑟" + token.whitespace_
+                if len(text_split_shaw) > 0:
+                    if text_split_shaw[-1] in s_follows:
+                        text_split_shaw += "𐑕" + token.whitespace_
+                    elif text_split_shaw[-1] in uhz_follows:
+                        text_split_shaw += "𐑩𐑟" + token.whitespace_
+                    else:
+                        text_split_shaw += "𐑟" + token.whitespace_
                 else:
+                    print("nothing before 's", doc)
                     text_split_shaw += "𐑟" + token.whitespace_
 
             # Convert possessive '
@@ -361,7 +366,10 @@ def latin2shaw(text, is_xml=False):
             ):
                 # 'have' only changes pronunciation where 'have to' means 'must'
                 if token.lower_ in have_to:
-                    if doc[token.i + 2].tag_ in ["VB", "VBP"]:
+                    if token.i + 2 < len(doc) and doc[token.i + 2].tag_ in [
+                        "VB",
+                        "VBP",
+                    ]:
                         text_split_shaw += have_to[token.lower_] + token.whitespace_
                     # else:
                     # text_split_shaw += "𐑣𐑨𐑟" + token.whitespace_
