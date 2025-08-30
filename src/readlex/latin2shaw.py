@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 
 
-def latin2shaw(text):
+def latin2shaw(text, is_xml=False):
     # path where resource files (readlex.json etc.) are kept
     resource_path = Path(__file__).parent.parent
 
@@ -561,13 +561,17 @@ def latin2shaw(text):
     text_shaw = ""
 
     # Split up the string to reduce the risk of spaCy exceeding memory limits
-    if text.strip().casefold().startswith("<!doctype html"):
+    if text.strip().casefold().startswith("<!doctype html") or is_xml:
         style_pattern = r"(<style\b[^>]*>.*?</style>)"
         script_pattern = r"(<script\b[^>]*>.*?</script>)"
         html_pattern = (
             r"(?!(?:<style[^>]*?>.*?</style>|<script[^>]*?>.*?</script>))(<.*?>)"
         )
-        html_patterns = f"{style_pattern}|{script_pattern}|{html_pattern}"
+        xml_pattern = r"(<[^>].>)"
+        # html_patterns = f"{style_pattern}|{script_pattern}|{html_pattern}]"
+        html_patterns = (
+            f"{style_pattern}|{script_pattern}|{html_pattern}|{xml_pattern}]"
+        )
         text_split = re.split(html_patterns, text, flags=re.DOTALL)
         for text_part in text_split:
             if text_part is None:
@@ -577,6 +581,8 @@ def latin2shaw(text):
             elif re.fullmatch(script_pattern, text_part, flags=re.DOTALL):
                 text_shaw += text_part
             elif re.fullmatch(html_pattern, text_part, flags=re.DOTALL):
+                text_shaw += text_part
+            elif re.fullmatch(xml_pattern, text_part, flags=re.DOTALL):
                 text_shaw += text_part
             else:
                 doc = tokenise(text_part)
