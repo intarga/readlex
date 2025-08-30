@@ -25,6 +25,7 @@ exclude = [
 
 [project.scripts]
 latin2shaw = "readlex.latin2shaw:main"
+epub2shaw = "readlex.epub:main"
 
 [build-system]
 requires = ["hatchling"]
