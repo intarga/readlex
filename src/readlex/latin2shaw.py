@@ -593,10 +593,25 @@ def latin2shaw(text, is_xml=False):
             elif re.fullmatch(xml_pattern, text_part, flags=re.DOTALL):
                 text_shaw += text_part
             else:
+                # text_part = unidecode.unidecode(text_part)
+                # text_part = text_part.replace('\u203A', '\'')
+                text_part = re.sub(r"\b’\b", "'", text_part)
                 doc = tokenise(text_part)
                 text_shaw += convert(doc)
         # Convert dumb quotes, double hyphens, etc. to their typographic equivalents
-        text_shaw = smartypants.smartypants(text_shaw)
+        # text_shaw = smartypants.smartypants(text_shaw)
+        # quotation_marks = {
+        #     # "&#8216;": "&lsaquo;",
+        #     # "&#8217;": "&rsaquo;",
+        #     # "&#8220;": "&laquo;",
+        #     # "&#8221;": "&raquo;",
+        #     "&#8216;": '\u2039',
+        #     "&#8217;": '\u203A',
+        #     "&#8220;": '\u00AB',
+        #     "&#8221;": '\u00BB',
+        # }
+        # for key, value in quotation_marks.items():
+        #     text_shaw = text_shaw.replace(key, value)
         # # Convert curly quotes to angle quotes
         # quotation_marks = {"&#8216;": "&lsaquo;", "&#8217;": "&rsaquo;", "&#8220;": "&laquo;", "&#8221;": "&raquo;"}
         # for key, value in quotation_marks.items():
@@ -618,6 +633,10 @@ def latin2shaw(text, is_xml=False):
             "&#8217;": "&rsaquo;",
             "&#8220;": "&laquo;",
             "&#8221;": "&raquo;",
+            # "&#8216;": '\u2039',
+            # "&#8217;": '\u203A',
+            # "&#8220;": '\u00AB',
+            # "&#8221;": '\u00BB',
         }
         for key, value in quotation_marks.items():
             text_shaw = text_shaw.replace(key, value)
